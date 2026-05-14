@@ -1,0 +1,10 @@
+{
+	"name": "sisger-mateo2026",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Enabled",
+			"editable": true
+		}
+	},
+	"location": "brazilsouth"
+}

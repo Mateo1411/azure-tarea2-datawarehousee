@@ -29,7 +29,15 @@
 					"name": "source3"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "silver_ventas_consolidadas",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "select1"
@@ -54,9 +62,6 @@
 				},
 				{
 					"name": "union2"
-				},
-				{
-					"name": "derivedColumn4"
 				}
 			],
 			"scriptLines": [
@@ -154,15 +159,30 @@
 				"select3 derive(channel = \"onlice\") ~> derivedColumn3",
 				"derivedColumn1, derivedColumn2 union(byName: true)~> union1",
 				"union1, derivedColumn3 union(byName: true)~> union2",
-				"union2 derive(fecha_venta = coalesce(\r",
-				"    toDate(fecha_venta, 'yyyy-MM-dd'),\r",
-				"    toDate(fecha_venta, 'dd/MM/yyyy'),\r",
-				"    toDate(fecha_venta, 'MM-dd-yyyy'),\r",
-				"    toDate(fecha_venta, 'yyyy/MM/dd'),\r",
-				"    toDate(fecha_venta, 'dd-MM-yyyy'),\r",
-				"    toDate(fecha_venta, 'MMMM dd, yyyy'),\r",
-				"    toDate(fecha_venta, \"dd 'de' MMMM 'de' yyyy\")\r",
-				")) ~> derivedColumn4"
+				"union2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_transaccion_origen as string,",
+				"          fecha_venta as timestamp,",
+				"          codigo_producto as string,",
+				"          nombre_producto_original as string,",
+				"          cantidad as integer,",
+				"          precio_unitario as decimal(18,2),",
+				"          monto_total as decimal(18,2),",
+				"          canal_venta as string,",
+				"          cliente_nombre as string,",
+				"          metodo_pago as string,",
+				"          costo_envio as decimal(18,2),",
+				"          fecha_carga as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 			]
 		}
 	}

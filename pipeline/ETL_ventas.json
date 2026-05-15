@@ -1,5 +1,5 @@
 {
-	"name": "pipeline_temporal",
+	"name": "ETL_ventas",
 	"properties": {
 		"activities": [
 			{
@@ -98,7 +98,14 @@
 			{
 				"name": "Data flow5",
 				"type": "ExecuteDataFlow",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Script1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -117,6 +124,63 @@
 						"computeType": "General"
 					},
 					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Data flow6",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "Data flow4",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_gold_hechos_ventas",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Script1",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "dw_ventas",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": "\ndelete from gold.dim_canal;\ndelete from gold.dim_cliente;\ndelete from gold.dim_producto;\ndelete from gold.dim_tiempo;\nDELETE from gold.hechos_ventas;"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
 				}
 			}
 		],

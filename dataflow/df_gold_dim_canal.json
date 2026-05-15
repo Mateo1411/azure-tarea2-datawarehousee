@@ -1,0 +1,33 @@
+{
+	"name": "df_gold_dim_canal",
+	"properties": {
+		"folder": {
+			"name": "gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "silver_ventas_consolidadas",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          canal_venta as string,",
+				"          tipo_canal as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT DISTINCT s.canal_venta,\\n        CASE \\n            WHEN s.canal_venta = \\'Online\\' THEN \\'Online\\'\\n            ELSE \\'Físico\\' \\n        END AS tipo_canal\\n    FROM silver.ventas_consolidadas s\\n',",
+				"     format: 'query') ~> source1"
+			]
+		}
+	}
+}
